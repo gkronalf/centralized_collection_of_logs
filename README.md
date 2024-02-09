@@ -21,5 +21,21 @@
 
 Для правильной работы c логами, нужно, чтобы на всех хостах было настроено одинаковое время. 
 Укажем часовой пояс (Московское время): ```cp /usr/share/zoneinfo/Europe/Moscow /etc/localtime```
+и перезупустим службу NTP Chrony: ``` systemctl restart chronyd ```
+Далее проверим, что время и дата указаны правильно: ``` date ```
+(Настроить NTP нужно на обоих серверах!)  
+
+2. Установка nginx на виртуальной машине web
+- для установки nginx сначала нужно установить epel-release: ``` yum install epel-release ``` 
+- установим nginx: ``` yum install -y nginx ```  
+- запускаем nginx: ``` systemctl start nginx  ```
+
+Проверим, что nginx работает корректно:
+``` systemctl status nginx ```  
+<image src="/screens/status_nginx.jpg" width="400" alt="status_nginx" >
+
+
+
+
 
 
