@@ -1,0 +1,58 @@
+---
+- name: "Installing and setting Nginx"
+  hosts: "web_servers"
+  become: true
+
+  tasks:
+    - name: "Add epel-release repo"
+      ansible.builtin.yum:
+        name: epel-release
+        state: present
+
+    - name: "Install Nginx Web Server on Centos7"
+      ansible.builtin.yum:
+        name: "nginx"
+        state: "latest"
+        update_cache: true
+
+    # - name: "Edit config nginx access_log"
+    #   lineinfile: dest=/etc/nginx/nginx.conf
+    #     regexp='^    access_log  /var/log/nginx/access.log  main;'
+    #     line='    access_log  syslog:server=192.168.50.15:514,tag=nginx_access,severity=info combined;'
+
+    # - name: "Add config nginx error_log"
+    #   lineinfile: dest=/etc/nginx/nginx.conf
+    #     regexp='^error_log /var/log/nginx/error.log;'
+    #     line='error_log /var/log/nginx/error.log;\nerror_log syslog:server=192.168.50.15:514,tag=nginx_error;'
+    
+    - name: "Copy config file NGiNX"
+      copy:
+        src=./roles/nginx/nginx.conf dest=/etc/nginx/nginx.conf
+
+    - name: "Start NGiNX"
+      service:
+        name: nginx
+        state: started
+
+- name: "Setting rsyslog" 
+  hosts: "logs_servers"
+  become: true
+
+  tasks:
+    # - name: "Edit rsyslog config"
+    #   lineinfile: dest=/etc/rsyslog.conf
+    #     regexp="^#\$ModLoad imudp"
+    #     line="$ModLoad imudp\n$UDPServerRun 514"
+
+    # - name: "Edit rsyslog config"
+    #   lineinfile: dest=/etc/rsyslog.conf
+    #     regexp="^#\$ModLoad imtcp"
+    #     line="$ModLoad imtcp\n$InputTCPServerRun 514"
+    - name: "Copy config file"
+      copy:
+        src=./roles/rsyslog/rsyslog.conf dest=/etc/rsyslog.conf owner=root group=root mode=0644
+
+    - name: "start rsyslog"
+      service:
+        name: rsyslog
+        state: restarted

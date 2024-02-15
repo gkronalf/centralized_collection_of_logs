@@ -35,6 +35,12 @@
 <image src="/screens/status_nginx.jpg" width="400" alt="status_nginx" >
 
 
+### Ansible
+Для конфигурирования ролей серверов с помощью Ansible необходимо сгенерировать ssh-ключи используя команду ``` ssh-keygen ```
+при этом имя ключей по умолчанию будет id_rsa, если имя будет задано с другим именем, необходимо указать его имя в Vagranfile в строке ``` config.vm.provision "file", source: "~/.ssh/id_rsa.pub", destination: "~/.ssh/me.pub" ```
+запуск автоматической конфигкрации осуществляется с помощью команды ``` ansible-playbook ```
+
+
 
 
 
