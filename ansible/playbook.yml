@@ -1,4 +1,13 @@
 ---
+- name: Set timezone all hosts
+  hosts: "all"
+  become: true
+
+  tasks:
+    - name: Set timezone Moscow
+      community.general.timezone:
+        name: Europe/Moscow
+
 - name: "Installing and setting Nginx"
   hosts: "web_servers"
   become: true
@@ -15,19 +24,32 @@
         state: "latest"
         update_cache: true
 
-    # - name: "Edit config nginx access_log"
-    #   lineinfile: dest=/etc/nginx/nginx.conf
-    #     regexp='^    access_log  /var/log/nginx/access.log  main;'
-    #     line='    access_log  syslog:server=192.168.50.15:514,tag=nginx_access,severity=info combined;'
+    - name: "Edit config nginx access_log"
+      lineinfile: dest=/etc/nginx/nginx.conf
+        regexp='    access_log  /var/log/nginx/access.log  main;'
+        line='    access_log  syslog:server=192.168.50.15:514,tag=nginx_access,severity=info combined;'
 
-    # - name: "Add config nginx error_log"
-    #   lineinfile: dest=/etc/nginx/nginx.conf
-    #     regexp='^error_log /var/log/nginx/error.log;'
-    #     line='error_log /var/log/nginx/error.log;\nerror_log syslog:server=192.168.50.15:514,tag=nginx_error;'
-    
-    - name: "Copy config file NGiNX"
-      copy:
-        src=./roles/nginx/nginx.conf dest=/etc/nginx/nginx.conf
+    - name: "Add config nginx error_log"
+      lineinfile: dest=/etc/nginx/nginx.conf
+        regexp='error_log /var/log/nginx/error.log;'
+        line='error_log syslog:server=192.168.50.15:514,tag=nginx_error;'
+
+    # - name: "Copy config file NGiNX"
+    #   copy:
+    #     src=./roles/nginx/nginx.conf dest=/etc/nginx/nginx.conf
+
+    - name: "Setting audit NGINX config file"
+      copy: 
+        src=./roles/nginx/audit.rules
+        dest=/etc/audit/rules.d/audit.rules
+
+    - name: "Restart auditd"
+      shell: "service auditd restart"
+
+    # - name: "Restart auditd"
+    #   service:
+    #     name: auditd
+    #     state: started
 
     - name: "Start NGiNX"
       service:
