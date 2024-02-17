@@ -43,6 +43,26 @@
         src=./roles/nginx/audit.rules
         dest=/etc/audit/rules.d/audit.rules
 
+    - name: "Install audispd-plugins"
+      ansible.builtin.yum:
+        name: "audispd-plugins"
+        state: "latest"
+
+    - name: "Setting auditd name server for logs_servers"
+      lineinfile: dest=/etc/audit/auditd.conf
+        regexp='name_format = NONE'
+        line='name_format = HOSTNAME'
+
+    - name: "Setting auditd on activite"
+      lineinfile: dest='/etc/audisp/plugins.d/au-remote.conf'
+        regexp='active = no'
+        line='active = yes'
+
+    - name: "Add log-server"
+      lineinfile: dest='/etc/audisp/audisp-remote.conf'
+        regexp='remote_server ='
+        line='remote_server = 192.168.50.15'
+
     - name: "Restart auditd"
       shell: "service auditd restart"
 
@@ -73,6 +93,14 @@
     - name: "Copy config file"
       copy:
         src=./roles/rsyslog/rsyslog.conf dest=/etc/rsyslog.conf owner=root group=root mode=0644
+
+    - name: "Open port 60"
+      lineinfile: dest='/etc/audit/auditd.conf'
+        regexp='##tcp_listen_port = 60'
+        line='tcp_listen_port = 60'
+
+    - name: "Restart auditd"
+      shell: "service auditd restart"
 
     - name: "start rsyslog"
       service:
